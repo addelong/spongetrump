@@ -89,3 +89,8 @@ var stream = T.stream('statuses/filter', {follow: 25073877 });
 			}
 		});
 });
+
+//hearbeat
+setInterval(function(){
+	console.log('heartbeat ' + Date.now());
+}, 1000 * 60)
