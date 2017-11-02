@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "fs": "0.0.1-security",
     "meme-maker": "^2.1.2",
     "memecanvas-prebuilt": "^1.0.8",
     "node-pre-gyp": "^0.6.39",
