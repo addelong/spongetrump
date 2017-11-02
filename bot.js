@@ -33,6 +33,9 @@ function spongeify(words) {
 
 var stream = T.stream('statuses/filter', {follow: 25073877 });
 stream.on('tweet', function(tweet) {
+	console.log('received tweet:');
+	console.log(JSON.stringify(tweet));
+
 	var tweetText = tweet.text.toLowerCase();
 	var tweetWords = tweetText.split(' ');
 	var midpoint = Math.ceil(tweetWords.length / 2);
@@ -42,12 +45,20 @@ stream.on('tweet', function(tweet) {
 	topWords = spongeify(topWords).trim();
 	bottomWords = spongeify(bottomWords).trim();
 
+	console.log("about to generate meme with topWords ");
+	console.log(topWords);
+	console.log("and bottom words ");
+	console.log(bottomWords);
+
 	memecanvas.generate('./sb.jpg', topWords, bottomWords, function(error, memefilename){
 		if(error){
 			console.log(error);
 		}
 		else{
 			var b64content = fs.readFileSync('./sb-meme.jpg', {encoding: 'base64'});
+			console.log('successfully generated meme with content:');
+			console.log(b64content);
+
 			T.post('media/upload', { media_data: b64content }, function (err, data, response) {
     		if (err){
       		console.log('ERROR:');
