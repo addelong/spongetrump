@@ -24,9 +24,9 @@ function spongeify(words) {
 			else {
 				spongeWord += word[j].toLowerCase();
 			}
+			caseFlipper = !caseFlipper;
 		}
 		res = res + spongeWord + " ";
-		caseFlipper = !caseFlipper;
 	}
 	return res;
 }
