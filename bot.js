@@ -101,8 +101,3 @@ var stream = T.stream('statuses/filter', {follow: [trumpId] });
 			});
 		}
 });
-
-//hearbeat
-setInterval(function(){
-	console.log('heartbeat ' + Date.now());
-}, 1000 * 60)
