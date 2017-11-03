@@ -33,11 +33,19 @@ function spongeify(words) {
 	return res;
 }
 
-var stream = T.stream('statuses/filter', {follow: [25073877] });
+var stream = T.stream('statuses/filter', {follow: ["25073877"] });
 
   stream.on('error', function(error) {
     console.log(JSON.stringify(error));
   });
+
+	stream.on('connected', function(response) {
+		console.log('connected to stream: ' + JSON.stringify(response));
+	});
+
+	stream.on('disconnect', function(response) {
+		console.log('disconnected: ' + JSON.stringify(response));
+	});
 
 	stream.on('tweet', function(tweet) {
 		console.log('received tweet:');
