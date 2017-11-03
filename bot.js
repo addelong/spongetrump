@@ -13,7 +13,7 @@ var T = new Twit({
  access_token_secret: process.env.BOT_ACCESS_TOKEN_SECRET
 });
 
-console.log("memecanvas and twit inited");
+console.log("memecanvas-prebuilt and twit inited");
 
 function spongeify(words) {
 	var caseFlipper = true;
