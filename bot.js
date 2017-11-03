@@ -4,6 +4,8 @@ var fs = require('fs');
 
 memecanvas.init('./', '-meme');
 
+var trumpId = "25073877";
+
 var T = new Twit({
  consumer_key: process.env.BOT_CONSUMER_KEY,
  consumer_secret: process.env.BOT_CONSUMER_SECRET,
@@ -33,7 +35,7 @@ function spongeify(words) {
 	return res;
 }
 
-var stream = T.stream('statuses/filter', {follow: ["25073877"] });
+var stream = T.stream('statuses/filter', {follow: [trumpId] });
 
   stream.on('error', function(error) {
     console.log(JSON.stringify(error));
@@ -48,54 +50,56 @@ var stream = T.stream('statuses/filter', {follow: ["25073877"] });
 	});
 
 	stream.on('tweet', function(tweet) {
-		console.log('received tweet:');
-		console.log(JSON.stringify(tweet));
+		if (tweet.user.id_str === trumpId){
+			console.log('received tweet:');
+			console.log(JSON.stringify(tweet));
 
-		var tweetText = tweet.text.toLowerCase();
-		var tweetWords = tweetText.split(' ');
-		var midpoint = Math.ceil(tweetWords.length / 2);
-		var topWords = tweetWords.slice(0, midpoint);
-		var bottomWords = tweetWords.slice(midpoint);
+			var tweetText = tweet.text.toLowerCase();
+			var tweetWords = tweetText.split(' ');
+			var midpoint = Math.ceil(tweetWords.length / 2);
+			var topWords = tweetWords.slice(0, midpoint);
+			var bottomWords = tweetWords.slice(midpoint);
 
-		topWords = spongeify(topWords).trim();
-		bottomWords = spongeify(bottomWords).trim();
+			topWords = spongeify(topWords).trim();
+			bottomWords = spongeify(bottomWords).trim();
 
-		console.log("about to generate meme with topWords ");
-		console.log(topWords);
-		console.log("and bottom words ");
-		console.log(bottomWords);
+			console.log("about to generate meme with topWords ");
+			console.log(topWords);
+			console.log("and bottom words ");
+			console.log(bottomWords);
 
-		memecanvas.generate('./sb.jpg', topWords, bottomWords, function(error, memefilename){
-			if(error){
-				console.log(error);
-			}
-			else{
-				var b64content = fs.readFileSync('./sb-meme.jpg', {encoding: 'base64'});
-				console.log('successfully generated meme with content:');
-				console.log(b64content);
+			memecanvas.generate('./sb.jpg', topWords, bottomWords, function(error, memefilename){
+				if(error){
+					console.log(error);
+				}
+				else{
+					var b64content = fs.readFileSync('./sb-meme.jpg', {encoding: 'base64'});
+					console.log('successfully generated meme with content:');
+					console.log(b64content);
 
-				T.post('media/upload', { media_data: b64content }, function (err, data, response) {
-	    		if (err){
-	      		console.log('ERROR:');
-	      		console.log(err);
-						fs.unlinkSync('./sb-meme.jpg');
-	    		}
-	    		else {
-	      		T.post('statuses/update', {
-	        		media_ids: new Array(data.media_id_string)
-	      		},
-	        	function(err, data, response) {
-	          	if (err){
-	            	console.log('ERROR:');
-	            	console.log(err);
-	          	}
-
+					T.post('media/upload', { media_data: b64content }, function (err, data, response) {
+		    		if (err){
+		      		console.log('ERROR:');
+		      		console.log(err);
 							fs.unlinkSync('./sb-meme.jpg');
-	        	});
-	    		}
-	  		});
-			}
-		});
+		    		}
+		    		else {
+		      		T.post('statuses/update', {
+		        		media_ids: new Array(data.media_id_string)
+		      		},
+		        	function(err, data, response) {
+		          	if (err){
+		            	console.log('ERROR:');
+		            	console.log(err);
+		          	}
+
+								fs.unlinkSync('./sb-meme.jpg');
+		        	});
+		    		}
+		  		});
+				}
+			});
+		}
 });
 
 //hearbeat
