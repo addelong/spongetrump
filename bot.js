@@ -73,7 +73,7 @@ var stream = T.stream('statuses/filter', {follow: [trumpId] });
 					console.log(error);
 				}
 				else{
-					var b64content = fs.readFileSync('./sb-meme.jpg', {encoding: 'base64'});
+					var b64content = fs.readFileSync('./sb-meme.png', {encoding: 'base64'});
 					console.log('successfully generated meme with content:');
 					console.log(b64content);
 
@@ -81,7 +81,7 @@ var stream = T.stream('statuses/filter', {follow: [trumpId] });
 		    		if (err){
 		      		console.log('ERROR:');
 		      		console.log(err);
-							fs.unlinkSync('./sb-meme.jpg');
+							fs.unlinkSync('./sb-meme.png');
 		    		}
 		    		else {
 		      		T.post('statuses/update', {
@@ -93,7 +93,7 @@ var stream = T.stream('statuses/filter', {follow: [trumpId] });
 		            	console.log(err);
 		          	}
 
-								fs.unlinkSync('./sb-meme.jpg');
+								fs.unlinkSync('./sb-meme.png');
 		        	});
 		    		}
 		  		});
