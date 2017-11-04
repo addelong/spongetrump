@@ -11,7 +11,7 @@
   "dependencies": {
     "fs": "0.0.1-security",
     "meme-maker": "^2.1.2",
-    "memecanvas-prebuilt": "^1.0.8",
+    "memecanvas-prebuilt": "https://github.com/addelong/memecanvas/tarball/master",
     "node-pre-gyp": "^0.6.39",
     "node-twitterbot": "^0.2.2",
     "twit": "^2.2.9"
