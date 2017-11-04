@@ -74,8 +74,7 @@ var stream = T.stream('statuses/filter', {follow: [trumpId] });
 				}
 				else{
 					var b64content = fs.readFileSync('./sb-meme.png', {encoding: 'base64'});
-					console.log('successfully generated meme with content:');
-					console.log(b64content);
+					console.log('successfully generated meme');
 
 					T.post('media/upload', { media_data: b64content }, function (err, data, response) {
 		    		if (err){
