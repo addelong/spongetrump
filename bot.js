@@ -55,6 +55,7 @@ var stream = T.stream('statuses/filter', {follow: [trumpId] });
 			console.log(JSON.stringify(tweet));
 
 			var tweetText = tweet.text.toLowerCase();
+			tweetText = tweetText.replace(/\n/g, " ");
 			var tweetWords = tweetText.split(' ');
 			var midpoint = Math.ceil(tweetWords.length / 2);
 			var topWords = tweetWords.slice(0, midpoint);
