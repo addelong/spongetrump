@@ -1,5 +1,5 @@
 # spongetrump
-A twitter bot that turns Trump tweets into sarcastic spongebob memes
+A twitter bot that turns Trump tweets into sarcastic spongebob memes. Check it out at https://twitter.com/RealTrumpBob
 
 
 This relies on my own fork of memecanvas found here: https://github.com/addelong/memecanvas 
