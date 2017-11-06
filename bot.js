@@ -35,6 +35,26 @@ function spongeify(words) {
 	return res;
 }
 
+function sanitizeTweet(tweet){
+  var tweetText = "";
+
+  if (tweet.extended_tweet && tweet.extended_tweet.full_text){
+    tweetText = tweet.extended_tweet.full_text;
+  }
+  else {
+    tweetText = tweet.text;
+  }
+
+  tweetText = tweetText.toLowerCase();
+  tweetText = tweetText.replace(/\n/g, " ");
+  tweetText = tweetText.replace(/&amp;/g, "&");
+
+  //strip any media link at the end of the tweet
+  tweetText = tweetText.replace(/https:\/\/t\.co\/\w+$/g, "");
+
+  return tweetText;
+}
+
 var stream = T.stream('statuses/filter', {follow: [trumpId] });
 
   stream.on('error', function(error) {
@@ -54,9 +74,7 @@ var stream = T.stream('statuses/filter', {follow: [trumpId] });
 			console.log('received tweet:');
 			console.log(JSON.stringify(tweet));
 
-			var tweetText = tweet.text.toLowerCase();
-			tweetText = tweetText.replace(/\n/g, " ");
-      tweetText = tweetText.replace(/&amp;/g, "&");
+      var tweetText = sanitizeTweet(tweet);
 			var tweetWords = tweetText.split(' ');
 			var midpoint = Math.ceil(tweetWords.length / 2);
 			var topWords = tweetWords.slice(0, midpoint);
