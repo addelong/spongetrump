@@ -124,7 +124,7 @@ function generateAndTweetSpongeTrump(allTweets, index, statusId, callback) {
 		return;
 	}
 
-	var tweetWords = tweetText.split(' ');
+	var tweetWords = allTweets[index].split(' ');
 	var midpoint = Math.ceil(tweetWords.length / 2);
 	var topWords = tweetWords.slice(0, midpoint);
 	var bottomWords = tweetWords.slice(midpoint);
