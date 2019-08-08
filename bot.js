@@ -5,6 +5,8 @@ var fs = require('fs');
 memecanvas.init('./', '-meme');
 
 var trumpId = "25073877";
+var MAX_TWEET_LENGTH = 50;
+var spongeTrumpUsername = "@realTrumpBob";
 
 var T = new Twit({
  consumer_key: process.env.BOT_CONSUMER_KEY,
@@ -55,6 +57,43 @@ function sanitizeTweet(tweet){
   return tweetText;
 }
 
+function splitLongTweetIfNecessary(tweetText) {
+	if (tweetText.length > MAX_TWEET_LENGTH){
+		var separatedTweets = [];
+		var allTweetWords = tweetText.split(' ');
+
+		var separatedTweet = "";
+		for (var i = 0; i < allTweetWords.length; i++){
+			if (separatedTweet === ""){
+				separatedTweet = allTweetWords[i];
+			}
+			else {
+				separatedTweet = separatedTweet + " " + allTweetWords[i];
+			}
+
+			if (separatedTweet.length > MAX_TWEET_LENGTH){
+				// if there are not enough words for a new tweet, shove em onto this one and return
+				if (i > allTweetWords.length - 5){
+					for (var y = i + 1; y < allTweetWords.length; y++){
+						separatedTweet = separatedTweet + " " + allTweetWords[y];
+					}
+					separatedTweets.push(separatedTweet);
+					return separatedTweets;
+				}
+				else {
+					separatedTweets.push(separatedTweet);
+					separatedTweet = "";
+				}
+			}
+		}
+
+		return separatedTweets;
+	}
+	else {
+		return [tweetText];
+	}
+}
+
 var stream = T.stream('statuses/filter', {follow: [trumpId] });
 
   stream.on('error', function(error) {
@@ -74,49 +113,60 @@ var stream = T.stream('statuses/filter', {follow: [trumpId] });
 			console.log('received tweet:');
 			console.log(JSON.stringify(tweet));
 
-      var tweetText = sanitizeTweet(tweet);
-			var tweetWords = tweetText.split(' ');
-			var midpoint = Math.ceil(tweetWords.length / 2);
-			var topWords = tweetWords.slice(0, midpoint);
-			var bottomWords = tweetWords.slice(midpoint);
+			var tweetText = sanitizeTweet(tweet);
+			var separatedTweets = splitLongTweetIfNecessary(tweetText);
+			var statusId = null;
 
-			topWords = spongeify(topWords).trim();
-			bottomWords = spongeify(bottomWords).trim();
+			for (var i = 0; i < separatedTweets.length; i++){
+				statusId = generateAndTweetSpongeTrump(separatedTweets[i], statusId);
+			}
+		}
+});
 
-			console.log("about to generate meme with topWords ");
-			console.log(topWords);
-			console.log("and bottom words ");
-			console.log(bottomWords);
-
-			memecanvas.generate('./sb.jpg', topWords, bottomWords, function(error, memefilename){
-				if(error){
-					console.log(error);
+function generateAndTweetSpongeTrump(tweetText, statusId) {
+	var tweetWords = tweetText.split(' ');
+	var midpoint = Math.ceil(tweetWords.length / 2);
+	var topWords = tweetWords.slice(0, midpoint);
+	var bottomWords = tweetWords.slice(midpoint);
+	topWords = spongeify(topWords).trim();
+	bottomWords = spongeify(bottomWords).trim();
+	console.log("about to generate meme with topWords ");
+	console.log(topWords);
+	console.log("and bottom words ");
+	console.log(bottomWords);
+	memecanvas.generate('./sb.jpg', topWords, bottomWords, function (error, memefilename) {
+		if (error) {
+			console.log(error);
+		}
+		else {
+			var b64content = fs.readFileSync('./sb-meme.png', { encoding: 'base64' });
+			console.log('successfully generated meme');
+			T.post('media/upload', { media_data: b64content }, function (err, data, response) {
+				if (err) {
+					console.log('ERROR:');
+					console.log(err);
+					fs.unlinkSync('./sb-meme.png');
 				}
-				else{
-					var b64content = fs.readFileSync('./sb-meme.png', {encoding: 'base64'});
-					console.log('successfully generated meme');
+				else {
+					var params = {
+						media_ids: new Array(data.media_id_string)
+					};
 
-					T.post('media/upload', { media_data: b64content }, function (err, data, response) {
-		    		if (err){
-		      		console.log('ERROR:');
-		      		console.log(err);
-							fs.unlinkSync('./sb-meme.png');
-		    		}
-		    		else {
-		      		T.post('statuses/update', {
-		        		media_ids: new Array(data.media_id_string)
-		      		},
-		        	function(err, data, response) {
-		          	if (err){
-		            	console.log('ERROR:');
-		            	console.log(err);
-		          	}
+					if (statusId){
+						params.status = spongeTrumpUsername;
+						params.in_reply_to_status_id = statusId;
+					}
 
-								fs.unlinkSync('./sb-meme.png');
-		        	});
-		    		}
-		  		});
+					T.post('statuses/update', params, function (err, data, response) {
+						if (err) {
+							console.log('ERROR:');
+							console.log(err);
+						}
+						fs.unlinkSync('./sb-meme.png');
+					});
 				}
 			});
 		}
-});
+	});
+}
+
