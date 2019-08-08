@@ -115,15 +115,15 @@ var stream = T.stream('statuses/filter', {follow: [trumpId] });
 
 			var tweetText = sanitizeTweet(tweet);
 			var separatedTweets = splitLongTweetIfNecessary(tweetText);
-			var statusId = null;
-
-			for (var i = 0; i < separatedTweets.length; i++){
-				statusId = generateAndTweetSpongeTrump(separatedTweets[i], statusId);
-			}
+			generateAndTweetSpongeTrump(separatedTweets, 0, null, generateAndTweetSpongeTrump);
 		}
 });
 
-function generateAndTweetSpongeTrump(tweetText, statusId) {
+function generateAndTweetSpongeTrump(allTweets, index, statusId, callback) {
+	if (index >= allTweets.length){
+		return;
+	}
+
 	var tweetWords = tweetText.split(' ');
 	var midpoint = Math.ceil(tweetWords.length / 2);
 	var topWords = tweetWords.slice(0, midpoint);
@@ -163,6 +163,8 @@ function generateAndTweetSpongeTrump(tweetText, statusId) {
 							console.log(err);
 						}
 						fs.unlinkSync('./sb-meme.png');
+
+						callback(allTweets, index + 1, data.id, generateAndTweetSpongeTrump);
 					});
 				}
 			});
