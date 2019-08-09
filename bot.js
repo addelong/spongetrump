@@ -6,7 +6,7 @@ memecanvas.init('./', '-meme');
 
 var trumpId = "25073877";
 var MAX_TWEET_LENGTH = 50;
-var spongeTrumpUsername = "@realTrumpBob";
+var spongeTrumpUsername = "@RealTrumpBob";
 
 var T = new Twit({
  consumer_key: process.env.BOT_CONSUMER_KEY,
