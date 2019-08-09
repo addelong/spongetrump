@@ -164,7 +164,7 @@ function generateAndTweetSpongeTrump(allTweets, index, statusId, callback) {
 						}
 						fs.unlinkSync('./sb-meme.png');
 
-						callback(allTweets, index + 1, data.id, generateAndTweetSpongeTrump);
+						callback(allTweets, index + 1, data.id_str, generateAndTweetSpongeTrump);
 					});
 				}
 			});
