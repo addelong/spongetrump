@@ -7,6 +7,7 @@ memecanvas.init('./', '-meme');
 var trumpId = "25073877";
 var MAX_TWEET_LENGTH = 50;
 var spongeTrumpUsername = "@RealTrumpBob";
+var separatedTweets = [];
 
 var T = new Twit({
  consumer_key: process.env.BOT_CONSUMER_KEY,
@@ -59,7 +60,7 @@ function sanitizeTweet(tweet){
 
 function splitLongTweetIfNecessary(tweetText) {
 	if (tweetText.length > MAX_TWEET_LENGTH){
-		var separatedTweets = [];
+		var splitTweets = [];
 		var allTweetWords = tweetText.split(' ');
 
 		var separatedTweet = "";
@@ -77,17 +78,17 @@ function splitLongTweetIfNecessary(tweetText) {
 					for (var y = i + 1; y < allTweetWords.length; y++){
 						separatedTweet = separatedTweet + " " + allTweetWords[y];
 					}
-					separatedTweets.push(separatedTweet);
-					return separatedTweets;
+					splitTweets.push(separatedTweet);
+					return splitTweets;
 				}
 				else {
-					separatedTweets.push(separatedTweet);
+					splitTweets.push(separatedTweet);
 					separatedTweet = "";
 				}
 			}
 		}
 
-		return separatedTweets;
+		return splitTweets;
 	}
 	else {
 		return [tweetText];
@@ -114,17 +115,17 @@ var stream = T.stream('statuses/filter', {follow: [trumpId] });
 			console.log(JSON.stringify(tweet));
 
 			var tweetText = sanitizeTweet(tweet);
-			var separatedTweets = splitLongTweetIfNecessary(tweetText);
-			generateAndTweetSpongeTrump(separatedTweets, 0, null, generateAndTweetSpongeTrump);
+			separatedTweets = separatedTweets.concat(splitLongTweetIfNecessary(tweetText));
+			generateAndTweetSpongeTrump(null, generateAndTweetSpongeTrump);
 		}
 });
 
-function generateAndTweetSpongeTrump(allTweets, index, statusId, callback) {
-	if (index >= allTweets.length){
+function generateAndTweetSpongeTrump(statusId, callback) {
+	if (separatedTweets.length === 0){
 		return;
 	}
 
-	var tweetWords = allTweets[index].split(' ');
+	var tweetWords = separatedTweets.shift().split(' ');
 	var midpoint = Math.ceil(tweetWords.length / 2);
 	var topWords = tweetWords.slice(0, midpoint);
 	var bottomWords = tweetWords.slice(midpoint);
@@ -153,8 +154,8 @@ function generateAndTweetSpongeTrump(allTweets, index, statusId, callback) {
 					};
 
 					if (statusId){
-						params.status = spongeTrumpUsername;
-						params.in_reply_to_status_id = statusId;
+						params["status"] = spongeTrumpUsername;
+						params["in_reply_to_status_id"] = statusId;
 					}
 
 					T.post('statuses/update', params, function (err, data, response) {
@@ -164,7 +165,7 @@ function generateAndTweetSpongeTrump(allTweets, index, statusId, callback) {
 						}
 						fs.unlinkSync('./sb-meme.png');
 
-						callback(allTweets, index + 1, data.id_str, generateAndTweetSpongeTrump);
+						callback(data.id_str, generateAndTweetSpongeTrump);
 					});
 				}
 			});
