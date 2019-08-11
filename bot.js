@@ -7,7 +7,7 @@ memecanvas.init('./', '-meme');
 var trumpId = "25073877";
 var MAX_TWEET_LENGTH = 50;
 var spongeTrumpUsername = "@RealTrumpBob";
-var separatedTweets = [];
+var generatingMemes = false;
 
 var T = new Twit({
  consumer_key: process.env.BOT_CONSUMER_KEY,
@@ -115,13 +115,26 @@ var stream = T.stream('statuses/filter', {follow: [trumpId] });
 			console.log(JSON.stringify(tweet));
 
 			var tweetText = sanitizeTweet(tweet);
-			separatedTweets = separatedTweets.concat(splitLongTweetIfNecessary(tweetText));
-			generateAndTweetSpongeTrump(null, generateAndTweetSpongeTrump);
+			var separatedTweets = splitLongTweetIfNecessary(tweetText);
+			spinUntilReadyToGenerateForNewTweet(separatedTweets);
 		}
 });
 
-function generateAndTweetSpongeTrump(statusId, callback) {
+function spinUntilReadyToGenerateForNewTweet(separatedTweets){
+	setTimeout(function(){
+		if (generatingMemes){
+			spinUntilReadyToGenerateForNewTweet(separatedTweets);
+		}
+		else {
+			generatingMemes = true;
+			generateAndTweetSpongeTrump(null, separatedTweets);
+		}
+	}, 1000);
+}
+
+function generateAndTweetSpongeTrump(statusId, separatedTweets) {
 	if (separatedTweets.length === 0){
+		generatingMemes = false;
 		return;
 	}
 
@@ -165,7 +178,7 @@ function generateAndTweetSpongeTrump(statusId, callback) {
 						}
 						fs.unlinkSync('./sb-meme.png');
 
-						callback(data.id_str, generateAndTweetSpongeTrump);
+						generateAndTweetSpongeTrump(data.id_str, separatedTweets);
 					});
 				}
 			});
