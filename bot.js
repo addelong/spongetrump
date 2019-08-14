@@ -88,6 +88,10 @@ function splitLongTweetIfNecessary(tweetText) {
 			}
 		}
 
+		if (separatedTweet.length > 0){
+			splitTweets.push(separatedTweet);
+		}
+
 		return splitTweets;
 	}
 	else {
